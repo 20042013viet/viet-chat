@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Firebase</title>
+  <style>
+    body { font-family: Arial; }
+    #messages {
+      height: 220px;
+      border: 1px solid #ccc;
+      padding: 5px;
+      overflow-y: auto;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<h3>💬 Chat realtime</h3>
+
+<div id="messages"></div>
+
+<input id="msg" placeholder="Nhập tin nhắn..." />
+<button onclick="send()">Gửi</button>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    onSnapshot,
+    query,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+  // 🔥 Firebase config của cậu
+  const firebaseConfig = {
+    apiKey: "AIzaSyBQ5_GxORvWzX35KHfYcvVxvrk8GMJJ7Yo",
+    authDomain: "viet-chat-3143f.firebaseapp.com",
+    projectId: "viet-chat-3143f",
+    storageBucket: "viet-chat-3143f.firebasestorage.app",
+    messagingSenderId: "837923445653",
+    appId: "1:837923445653:web:3b9b4cb02b8dbce2ab749c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const box = document.getElementById("messages");
+  const q = query(collection(db, "messages"), orderBy("time"));
+
+  onSnapshot(q, (snap) => {
+    box.innerHTML = "";
+    snap.forEach(doc => {
+      box.innerHTML += `<div>• ${doc.data().text}</div>`;
+    });
+    box.scrollTop = box.scrollHeight;
+  });
+
+  window.send = async () => {
+    const input = document.getElementById("msg");
+    if (input.value.trim() === "") return;
+
+    await addDoc(collection(db, "messages"), {
+      text: input.value,
+      time: Date.now()
+    });
+
+    input.value = "";
+  };
+</script>
+
+</body>
+</html>
